@@ -1,0 +1,81 @@
+#include <ctime>
+#include "Dragon.h"
+
+using namespace std;
+
+Dragon::Dragon(string name, string type, bool isHatched, dragonSize curSize,
+	       dragonSize maxSize, int rarity){
+}
+
+string Dragon::GetName(){
+  return m_name;
+}
+
+void Dragon::SetName(string name){
+  m_name = name;
+}
+
+string Dragon::GetType(){
+  return m_type;
+}
+
+void Dragon::SetType(string Type){
+  m_type = Type;
+}
+
+bool Dragon::GetIsHatched(){
+  return m_isHatched;
+}
+
+void Dragon::HatchDragon(){
+  if (m_isHatched != true)
+    m_isHatched = 1;
+  else
+    m_isHatched = true;
+}
+
+dragonSize Dragon::GetCurSize(){
+  return m_curSize;
+}
+
+void Dragon::SetCurSize(dragonSize curSize){
+  m_curSize = curSize;
+}
+
+dragonSize Dragon::GetMaxSize(){
+  return m_maxSize;
+}
+
+void Dragon::SetMaxSize(dragonSize maxSize){
+  m_maxSize = maxSize;
+}
+
+int Dragon::GetRarity(){
+  return m_rarity;
+}
+
+void Dragon::SetRarity(int rarity){
+  if (rarity >= 1 && rarity <= 10)
+    m_rarity = rarity;
+}
+
+bool Dragon::AttemptGrow(){
+  if (m_curSize < m_maxSize) 
+    return true;
+  else{
+    return false;
+  }
+}
+
+bool Dragon::AttackDragon(Dragon& enemyDrag){
+  int e = static_cast<int>(rand())% enemyDrag.GetMaxSize() + 2;
+  if (m_curSize < e)
+    return false;
+  else
+    return true;
+}  
+
+string Dragon::BreathAttack(){
+  string dragBreath = "Your " +  m_name + " breaths " + m_type;
+  return dragBreath;
+}

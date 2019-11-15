@@ -1,0 +1,28 @@
+#include "Letter.h"
+#include "Mail.h"
+
+using namespace std;
+
+//default constructor for a letter
+Letter::Letter():Mail(0, "John Wick", "Joe Barnes", 15.5, .05){
+}
+
+//overloaded constructor for a letter
+Letter::Letter(int lettCarr, string lettSend, string lettRecip, float lettSize
+	       , float lettBaseCost):Mail(lettCarr, lettSend, lettRecip,
+					  lettSize, lettBaseCost){
+}
+
+//deconstructor for a letter object
+Letter::~Letter(){
+} 
+
+//to string method that returns a string representation of a letter
+string Letter::toString(){
+  stringstream mailStr;
+  mailStr << "LETTER" << endl;
+  mailStr << "To: " << m_recipient << endl;
+  mailStr << "From: " << m_sender << endl;
+  mailStr << "Size: " << m_size << " square inches";
+  return mailStr.str();
+}

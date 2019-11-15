@@ -1,0 +1,153 @@
+/*****************************************
+ ** File:    MailHouse.cpp
+ ** Project: CMSC 202 Project 4, Spring 2018
+ ** Author:  Nana Owusu
+ ** Date:    4/24/18
+ ** Section: 7791
+ ** E-mail:  onana1@gl.umbc.edu
+ **
+ ** This file contains the MailHouse.cpp program for Project 4.
+ ** This file creates the MailHouse object and loads the mail into
+ ** the carriers depending on the file path. Also delivers mail
+ ** by sending out the carriers and lastly has clean up to delete 
+ ** any remaining allocated data.
+ ***********************************************/
+#include <cstdlib>
+#include "MailHouse.h"
+
+using namespace std;
+
+Ups *newCarrierU = new Ups(); //creates a Ups object
+FedEx *newCarrierF = new FedEx(); //creates a FedEx object
+
+//default constructor for a MailHouse object
+MailHouse::MailHouse(){
+}
+
+//function that loads the mail from a file
+int MailHouse::loadMail(char* fileName){
+  string fedCap; //FedEx Capacity
+  string fedSpd; //FedEx Speed
+  string upsCap; //Ups Capacity
+  string upsSpd; //Ups Speed
+  string lettBase; //Letter Base Cost
+  string packBase; //Package Base Cost
+  string carrName; //Carrier number in string form
+  string mailName; //Mail number in string form
+  string sendName; //sender's name
+  string reciName; //recipient's name
+  string weightName; //weight of object in string form
+
+  string fn = fileName; //string that is file name
+  ifstream f; //file stream object
+  f.open(fn.c_str());
+  if(f.is_open() == false){
+    return 0;
+  }
+  //gets the first line of the file and puts each space into a variable
+  getline(f, upsCap, ' ');
+  getline(f, fedCap, ' ');
+  getline(f, upsSpd, ' ');
+  getline(f, fedSpd, ' ');
+  getline(f, lettBase,' ');
+  float numLettBase = atof(lettBase.c_str());
+  getline(f, packBase);
+  float numPackBase = atof(packBase.c_str());
+  
+  //keeps getting data until the file end is reached 
+  while(getline(f, carrName, ',')){
+    int numCarr = atoi(carrName.c_str());
+    
+    //gets the sender, recipient, and weight from the file
+    getline(f, mailName, ',');
+    int numMail = atoi(mailName.c_str());
+    getline(f, sendName, ',');
+    getline(f, reciName, ',');
+    getline(f, weightName);
+    float numWeight = atof(weightName.c_str());
+
+    //if the number from the file matches letter, creates a letter object
+    if (numMail == LETTER){
+      Letter *newMail = new Letter(numCarr, sendName, reciName, numWeight
+				   ,numLettBase);
+      m_mail.push_back(newMail);
+    }
+    //if the number from the file matches letter, creates a letter object
+    else if(numMail == PACKAGE){
+      Package *newMail = new Package(numCarr, sendName, reciName, 
+				     numWeight, numPackBase);
+      m_mail.push_back(newMail);
+    }
+  }
+  float numFedSpd = atof(fedSpd.c_str());
+  float numUpsSpd = atof(upsSpd.c_str());
+  int numFedCap = atoi(fedCap.c_str());
+  int numUpsCap = atoi(upsCap.c_str());
+  
+  //sets rates and max capacity for carriers
+  newCarrierU->setRate(numUpsSpd);
+  newCarrierU->setMaxCapacity(numUpsCap);
+  
+  newCarrierF->setRate(numFedSpd);
+  newCarrierF->setMaxCapacity(numFedCap);
+  
+  //closes file
+  f.close();
+  return 1;
+}
+
+//fills the carriers with the right mail
+int MailHouse::fillCarriers(){
+  if(m_mail.empty() == true){
+    return 0;
+  }
+  
+  for(unsigned int i = 0; i<m_mail.size(); i++){
+    
+    if(m_mail[i]->getCarrier() == UPS){
+      newCarrierU->insert(m_mail[i]);
+    }
+    else if(m_mail[i]->getCarrier() == FEDEX){
+      newCarrierF->insert(m_mail[i]);
+    }
+    
+  }
+  
+  if(newCarrierU->getVector().empty() == true){
+    return 0;
+  }
+
+  if(newCarrierF->getVector().empty() == true){
+    return 0;
+  }
+
+  //pushes the carriers into a carrier vector
+  m_carriers.push_back(newCarrierU);
+  m_carriers.push_back(newCarrierF);
+  cout << *newCarrierU;
+  cout << "**************************" << endl << endl;
+  cout << "**************************" << endl;
+  cout << *newCarrierF;
+  return 1;
+}
+
+//puts the carriers out for delivery
+int MailHouse::deliverMail(){
+  if(m_carriers.empty() == true){
+    return 0;
+  }else{
+    //goes throught vectors and does deliver function
+    for(unsigned int i = 0; i<m_carriers.size(); i++){
+      m_carriers[i]->deliver();
+    }
+    return 1;
+  }
+}
+
+//deletes all the remaining allocated data
+int MailHouse::cleanUp(){
+  for(unsigned int i = 0; i<m_carriers.size(); i++){
+    delete m_carriers[i];
+  }
+  return 1;
+}

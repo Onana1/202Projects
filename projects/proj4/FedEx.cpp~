@@ -1,0 +1,49 @@
+#include "FedEx.h"
+#include "Carrier.h"
+
+using namespace std;
+
+FedEx::FedEx():Carrier(){
+  m_max_capacity = 5;
+  m_delivery_rate = .7;
+}
+
+FedEx::~FedEx(){
+  for(unsigned int i = 0; i<m_storage.size(); i++){
+    delete m_storage[i];
+    m_storage[i] = NULL;
+  }
+}
+
+int FedEx::deliver(){
+  float fedCost = 0;
+  if (m_storage.empty()){
+    return 0;
+  }else{
+    for (unsigned int i = 0; i < m_storage.size(); i++)
+      {
+        cout << "Delivered:" << endl;
+        cout << "--------------------" << endl;
+        cout << *m_storage[i] << endl;
+        cout << "--------------------" << endl <<endl;
+	fedCost = (fedCost + (m_storage[i]->getBaseCost()*
+			      m_storage[i]->getSize()*m_delivery_rate));
+      }
+    cout.setf(ios::fixed);
+    cout.setf(ios::showpoint);
+    cout.precision(2);
+    cout << "Deliveries completed. FedEx total earned: $" << fedCost << endl;
+    return 1;
+  }
+}
+
+ostream& FedEx::print(ostream& outStream) const{
+  outStream << "FedEx Truck Contents:" << endl <<
+    "--------------------" << endl;
+    for (unsigned int i = 0; i < m_storage.size(); i++)
+      {
+	outStream << *m_storage[i] << endl <<
+	  "--------------------" << endl;
+      } 
+  return outStream;
+}

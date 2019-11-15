@@ -1,0 +1,58 @@
+/*****************************************
+ ** File:    Ship.cpp
+ ** Project: CMSC 202 Project 5, Spring 2018
+ ** Author:  Nana Owusu
+ ** Date:    5/8/18
+ ** Section: 7791
+ ** E-mail:  onana1@gl.umbc.edu
+ **
+ ** This file contains the Ship.cpp program for Project 5.
+ ** This file creates the Ship object and has the setter
+ ** and getter functions for the object and its sub classes.
+ ** This file also overloads the << so the object can be
+ ** printed.
+ ***********************************************/
+#include "Ship.h"
+
+Ship::Ship(string name, string type, int attack, int defense){
+  m_name = name;
+  m_type = type;
+  m_attack = attack;
+  m_defense = defense;
+}
+
+string Ship::getName(){
+  return m_name;
+}
+
+void Ship::setName(string name){
+  m_name = name;
+}
+
+string Ship::getType(){
+  return m_type;
+}
+
+void Ship::setType(string type){
+  m_type = type;
+}
+
+int Ship::getAttack(){
+  return m_attack;
+}
+
+void Ship::setAttack(int attack){
+  m_attack = attack;
+}
+
+int Ship::getDefense(){
+  return m_defense;
+}
+
+void Ship::setDefense(int defense){
+  m_defense = defense;
+}
+
+ostream& operator<<(ostream& os, Ship& b){
+  return os << b.toString(os);
+}

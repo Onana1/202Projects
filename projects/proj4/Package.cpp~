@@ -1,0 +1,30 @@
+#include "Package.h"
+#include "Mail.h"
+
+
+using namespace std;
+
+//default constructor for a package object
+Package::Package():Mail(0, "John Wick", "Joe Barnes", 15.5, .05){
+}
+
+//overloaded constructor for a package object
+Package::Package(int packCarr, string packSend, string packRecip, 
+		 float packSize, float packBaseCost):Mail(packCarr, packSend,
+							  packRecip, packSize,
+							  packBaseCost){
+}
+
+//deconstructor for a package object
+Package::~Package(){
+}
+
+//to string method that returns a string representation of a package
+string Package::toString(){
+  stringstream mailStr;
+  mailStr << "PACKAGE" << endl;
+  mailStr << "To: " << m_recipient << endl;
+  mailStr << "From: " << m_sender << endl;
+  mailStr << "Weight: " << m_size << " lbs";
+  return mailStr.str();
+}

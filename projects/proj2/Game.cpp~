@@ -1,0 +1,341 @@
+/*****************************************
+ ** File:    Game.cpp
+ ** Project: CMSC 202 Project 2, Spring 2018
+ ** Author:  Nana Owusu
+ ** Date:    3/28/18
+ ** Section: 7791
+ ** E-mail:  onana1@gl.umbc.edu
+ **
+ ** This file contains the Game.cpp program for Project 2.
+ ** This file welcomes the user to the game and loads the 
+ ** dragons into a vector, where the user can then try to find
+ ** an egg and then try and hatch that egg into a dragon, where they
+ ** are put in a vector and can use those dragons to fight other  
+ ** dragons.
+ **
+ ***********************************************/
+
+#include <ctime>
+#include "Game.h"
+
+using namespace std;
+
+Game::Game(){
+  string playName;
+  cout << "Welcome to Dragon Wars" << endl;
+  cout << "What is your name" << endl;
+  getline(cin, playName);
+  m_name = playName;
+  LoadDragons();
+  srand(time(NULL));
+  }
+
+void Game::LoadDragons(){
+  string line;
+  string dName;
+  string dType;
+  string dMax;
+  string dRare;
+  bool dHatch = false;
+  ifstream inputStream;
+  vector<Dragon> dragonList;
+  dragonSize dragonMax;
+ 
+  inputStream.open(PROJ2_DRAGONS.c_str());
+  if (inputStream.is_open()){
+    while (getline(inputStream, dName,',')){
+	getline(inputStream, dType,',');
+	getline(inputStream, dMax,',');
+	getline(inputStream, dRare);
+      
+      if (dMax == "1")
+	dragonMax = tiny;
+      if (dMax == "2")
+	dragonMax = small;
+      if (dMax == "3")
+	dragonMax = medium;
+      if (dMax == "4")
+	dragonMax = large;
+      if (dMax == "5")
+	dragonMax = huge;
+      
+      int dragonRare = atoi(dRare.c_str());
+      Dragon dragonData(dName, dType, dHatch, tiny, dragonMax, dragonRare);
+      dragonData.SetName(dName);
+      dragonData.SetType(dType);
+      dragonData.HatchDragon();
+      dragonData.SetCurSize(tiny);
+      dragonData.SetMaxSize(dragonMax);
+      dragonData.SetRarity(dragonRare);
+      
+      dragonList.push_back(dragonData);
+      m_dragons = dragonList;
+      
+    }   
+  }else{
+    cout << "File Failed" << endl;
+  }
+  DisplayAllDragons();
+}
+
+void Game::DisplayAllDragons(){
+  cout << setw(20) <<"Name" << setw(20) << "Type" << setw(20) << "Max Size" 
+       << setw(20) << "Rarity" <<endl;
+  for (vector<Dragon>::iterator it = m_dragons.begin(); 
+       it != m_dragons.end(); ++it){
+    cout << setw(20)<<(*it).GetName()<<setw(20)<< (*it).GetType()<<setw(20) 
+	 << (*it).GetMaxSize()+1 << setw(20) << (*it).GetRarity()
+         << endl;
+    cout << endl;
+  }
+}
+
+int Game::MainMenu(){
+  int numMain;
+  do{
+    cout << "What would you like to do?" << endl;
+    cout << "1. Search for an egg" << endl;
+    cout << "2. Try to hatch egg" << endl;
+    cout << "3. Display all dragons and eggs" << endl;
+    cout << "4. Attack!" << endl;
+    cout << "5. Quit" << endl;
+    cin >> numMain;
+  } while (numMain < 1  &&  numMain > 5);
+    return numMain;
+}
+
+void Game::SearchEgg(){
+  int a;
+  int b;
+  int x = 0;
+  int numRare;
+  int numChance;
+  string dragEgg;
+  int count = 0;
+  do{
+    cout << "What rarity egg would you like to search for?" << endl;
+    cout << "Enter a rarity (1 = very common and 10 = very rare)" << endl;
+    cin >> numRare;
+  } while (numRare < 1 || numRare > 10 ); 
+  a = static_cast<int>(rand())% 100 + 1;
+  if (numRare == 1)
+    numChance = 92;
+  else if (numRare == 2)
+    numChance = 82;
+  else if (numRare == 3)
+    numChance = 73;
+  else if (numRare == 4)
+    numChance = 64;
+  else if (numRare == 5)
+    numChance = 55;
+  else if (numRare == 6)
+    numChance = 46;
+  else if (numRare == 7)
+    numChance = 37;
+  else if (numRare == 8)
+    numChance = 28;
+  else if (numRare == 9)
+    numChance = 19;
+  else if (numRare == 10)
+    numChance = 10;
+
+  if (a <= numChance){
+    for (vector<Dragon>::iterator it = m_dragons.begin();
+	 it != m_dragons.end(); ++it){
+      if ((*it).GetRarity() == numChance)
+	count++;
+    }
+    b = static_cast<int>(rand())% count + 0;
+    string eggArray[count];
+    for (vector<Dragon>::iterator it = m_dragons.begin();
+	 it != m_dragons.end(); ++it){
+      if ((*it).GetRarity() == 1){
+	eggArray[x]=(*it).GetName();
+	x++;
+      }
+    }
+    dragEgg = eggArray[b];
+    cout << "You found a " << dragEgg << " egg!" << endl;
+    for (vector<Dragon>::iterator it = m_dragons.begin();
+	 it != m_dragons.end(); ++it){
+      if (dragEgg == (*it).GetName())
+	m_myDragons.push_back(*it);
+    }
+  }
+  else{
+    cout << "Sorry you did not find a dragon of that rarity." << endl;
+ }
+  StartGame();
+}
+
+void Game::HatchEgg(){
+  int eggCount = 0;
+  int eggPick;
+  int c = static_cast<int>(rand())% 100 + 1;
+  cout << "Which dragon would you like to try and hatch?" << endl;
+  cin >> eggPick;
+  for (vector<Dragon>::iterator it = m_myDragons.begin();
+       it != m_myDragons.end(); ++it){
+    eggCount++;
+    if (eggCount == eggPick-1){
+      if (c <= 50){
+	if ((*it).GetIsHatched() == true)
+	  cout << "The dragon did not hatch or is already hatched" << endl;
+	(*it).GetIsHatched() == true;
+	cout << "Your " << (*it).GetName() << " egg has hatched into a dragon!"
+	     << endl;
+      }else{
+	cout << "The dragon did not hatch or is already hatched" << endl;
+      }
+    }
+  }
+}
+
+
+void Game::DisplayMyDragons(){
+  int counter = 1;
+  cout << "****************" << endl;
+  cout << m_name << "'s Dragons" << endl;
+  cout << setw(15) <<"Name" << setw(10) << "Type" << setw(10) << "Egg/Dragon"
+       << setw(10) << "Current Size" << setw(10) << "Max Size" << endl;
+  for (vector<Dragon>::iterator it = m_myDragons.begin();
+       it != m_myDragons.end(); ++it){
+    cout << setw(2) << counter << "." << setw(20) <<( *it).GetName() <<setw(10)
+	 << (*it).GetType() <<setw(10);
+    if ((*it).GetIsHatched() == true)
+      cout << "dragon";
+    else
+      cout << "egg";
+    
+    cout << setw(10) << (*it).GetCurSize() << setw(10) << (*it).GetMaxSize()+1
+         << endl;
+    cout << endl;
+  }
+  StartGame();
+}
+
+void Game::Attack(){
+  int dragNum = 0;
+  int dragRand = 0;
+  int dragPick = 0;
+  int playerDrag = 0;
+  int breathChance = 0;
+  Dragon *playerDragFight;
+  string fightChoice;
+  string foundDrag;
+  string playerDragName;
+  cout << "Attack" << endl;
+  for (vector<Dragon>::iterator it = m_dragons.begin();
+       it != m_dragons.end(); ++it){
+    dragNum++;
+  }
+  int d = static_cast<int>(rand())% dragNum;
+  for (vector<Dragon>::iterator it = m_dragons.begin();
+       it != m_dragons.end(); ++it){
+    dragRand++;
+    if (dragRand == d){
+      cout << "You found a " << (*it).GetName() << " to fight!" << endl;
+      foundDrag == (*it).GetName();
+    }
+    do{
+      cout << "Do you want to fight it? (y/n)" << endl;
+      cin >> fightChoice;
+    }while (fightChoice != "y" || fightChoice != "n");
+    
+    if (fightChoice == "y"){
+      DisplayMyDragons();
+      cout << "Which dragon would you like to fight with?" << endl;
+      cin >> dragPick;
+      for (vector<Dragon>::iterator it = m_myDragons.begin();
+	   it != m_myDragons.end(); ++it){
+	playerDrag++;
+	if (dragPick == playerDrag-1){
+	  cout << "Your " << (*it).GetName() << " attacks the " << foundDrag 
+	       << "!" << endl;
+	  playerDragName = (*it).GetName();
+	  for(unsigned int i = 0; i < m_myDragons.size(); i++)
+	    if (dragPick - 1  == int(i))
+	      playerDragFight = &m_myDragons[i];
+	}
+      }
+      breathChance = static_cast<int>(rand())% 100 + 1;
+      if (breathChance <= 5){
+	for (vector<Dragon>::iterator it = m_myDragons.begin();
+             it != m_myDragons.end(); ++it){
+          if ((*it).GetName() == playerDragName){
+	    string breathOut = playerDragFight->BreathAttack();
+	    cout << breathOut << endl;
+	    cout << "Your " << playerDragName << " defeats the enemy "
+		 << foundDrag << "!" << endl;
+            if (playerDragFight->AttemptGrow() == true){
+              if ((*it).GetCurSize() == tiny){
+                (*it).SetCurSize(small);
+                cout << "Your dragon grew a bit larger" << endl;
+              }else if ((*it).GetCurSize() == small){
+                (*it).SetCurSize(medium);
+                cout << "Your dragon grew a bit larger" << endl;
+              }else if ((*it).GetCurSize() == medium){
+                (*it).SetCurSize(large);
+                cout << "Your dragon grew a bit larger" << endl;
+              }else if ((*it).GetCurSize() == large){
+                (*it).SetCurSize(huge);
+                cout << "Your dragon grew a bit larger" << endl;
+              }else if ((*it).GetCurSize() == huge)
+                cout << "Your dragon cannot grow any larger" << endl;
+	    }
+	  }
+	}
+      }else if ((playerDragFight->AttackDragon(*it) == false)){
+	for (vector<Dragon>::iterator it = m_myDragons.begin();
+	     it != m_myDragons.end(); ++it){
+	  if ((*it).GetName() == playerDragName){
+	    cout << "The " << foundDrag << " defeated your " 
+		 << playerDragName << endl;  
+	    m_myDragons.erase(it);
+	  }}
+      }else
+	for (vector<Dragon>::iterator it = m_myDragons.begin();
+             it != m_myDragons.end(); ++it){
+	  if ((*it).GetName() == playerDragName){
+	    cout << "Your " << playerDragName << " defeats the enemy "
+                 << foundDrag << "!" << endl;
+	    if (playerDragFight->AttemptGrow() == true){
+	      if ((*it).GetCurSize() == tiny){
+		(*it).SetCurSize(small);
+		cout << "Your dragon grew a bit larger" << endl;
+	      }else if ((*it).GetCurSize() == small){
+                (*it).SetCurSize(medium);
+		cout << "Your dragon grew a bit larger" << endl;
+	      }else if ((*it).GetCurSize() == medium){
+                (*it).SetCurSize(large);
+		cout << "Your dragon grew a bit larger" << endl;
+	      }else if ((*it).GetCurSize() == large){
+                (*it).SetCurSize(huge);
+		cout << "Your dragon grew a bit larger" << endl;
+	      }else if ((*it).GetCurSize() == huge)
+                cout << "Your dragon cannot grow any larger" << endl;
+	    }
+	  }
+	}
+    }
+  else
+    StartGame();
+  }
+  StartGame();
+}
+void Game::StartGame(){
+  switch(MainMenu())
+    {
+    case 1:
+      SearchEgg();
+    case 2:
+      DisplayMyDragons();
+      HatchEgg();
+    case 3:
+      DisplayMyDragons();
+    case 4:
+      Attack();
+    case 5:
+      cout << "Thanks for playing Dragon Wars!" << endl;
+    }
+}

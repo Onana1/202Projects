@@ -1,0 +1,47 @@
+#include "Mail.h"
+
+using namespace std;
+
+//default constructor for the mail
+Mail::Mail(){
+}
+
+//overloaded constructor for the mail
+Mail::Mail(int carNum, string mailSend, string mailRecip, 
+	   float mailSize, float mailBaseCost){
+  m_carrier = carNum;
+  m_sender = mailSend;
+  m_recipient = mailRecip;
+  m_size = mailSize;
+  m_baseCost = mailBaseCost;
+}
+
+//getter method that gets which carrier the mail belongs to
+int Mail::getCarrier(){
+  return m_carrier;
+}
+
+//getter method that returns the sender of the mail
+string Mail::getSender(){
+  return m_sender;
+}
+
+//getter method that returns the recipient of the mail
+string Mail::getRecipient(){
+  return m_recipient;
+}
+
+//getter method that returns the size of the mail(lbs or sq in.)
+float Mail::getSize(){
+  return m_size;
+}
+
+//getter method that returns the base cost of that mail type
+float Mail::getBaseCost(){
+  return m_baseCost;
+}
+
+//function that overloads the << operator so mail objects can be printed
+ostream& operator<<(ostream& outStream, Mail& mailRef){
+  return outStream << mailRef.toString();
+}
